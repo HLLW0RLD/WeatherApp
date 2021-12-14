@@ -11,8 +11,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btn.setOnClickListener {
+        val weather = Weather(10, "Msk")
 
+        btn.setOnClickListener {
+            textView.text = weather.town + " : " + weather.temperature
+        }
+
+        consolWriter(weather.town)
+    }
+
+    fun consolWriter(word : String){
+        for(i in 1..10){
+            println(word)
         }
     }
 }
