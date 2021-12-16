@@ -17,23 +17,5 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val weather = Weather(10, "Msk")
-
-        binding.btn.setOnClickListener {
-            val result = (1..3).random()
-            if (result == 1) {
-                Toast.makeText(applicationContext, "Lost connection! Please try again", Toast.LENGTH_SHORT).show()
-            } else {
-                binding.textView.text = weather.town + " : " + weather.temperature
-            }
-        }
-
-        consolWriter(weather.town)
-    }
-
-    fun consolWriter(word: String) {
-        for (i in 1..10) {
-            println(word)
-        }
     }
 }
