@@ -20,11 +20,11 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    interface OnItemViewClickListener {
-        fun onItemViewClick(weather: Weather)
-    }
 
-    private lateinit var viewModel: MainViewModel
+
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this).get(MainViewModel::class.java)
+    }
 
     private var _binding: FragmentMainBinding? = null
 
@@ -35,11 +35,6 @@ class MainFragment : Fragment() {
 
     private var isDataSetRus: Boolean = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,19 +44,16 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter.setOnItemViewClickListener(object: OnItemViewClickListener {
-            override fun onItemViewClick(weather: Weather) {
-                val manager = activity?.supportFragmentManager
-                if (manager != null) {
-                    val bundle = Bundle()
-                    bundle.putParcelable(DetailsFragment.BUNDLE_EXTRA, weather)
-                    manager.beginTransaction()
-                        .add(R.id.container, DetailsFragment.newInstance(bundle))
-                        .addToBackStack("")
-                        .commitAllowingStateLoss()
-                }
+        adapter.setOnItemViewClickListener { weather ->
+            activity?.supportFragmentManager?.apply {
+                beginTransaction()
+                    .add(R.id.container, DetailsFragment.newInstance(Bundle().apply {
+                        putParcelable(DetailsFragment.BUNDLE_EXTRA, weather)
+                    }))
+                    .addToBackStack("")
+                    .commitAllowingStateLoss()
             }
-        })
+    }
 
         binding.mainFragmentRecyclerView.adapter = adapter
         binding.mainFragmentFAB.setOnClickListener {
@@ -73,6 +65,7 @@ class MainFragment : Fragment() {
         viewModel.getData().observe(viewLifecycleOwner, observer)
         viewModel.getWeatherFromLocalSourceWorld()
     }
+
 
 
     private fun changeWeatherDataSet() {
@@ -89,28 +82,19 @@ class MainFragment : Fragment() {
     private fun renderData(data: AppState) {
         when (data) {
             is AppState.Success -> {
-                val weatherData = data.weatherData
-                binding.loadingLayout.visibility = View.GONE
-                adapter.setWeather(weatherData)
+                binding.loadingLayout.hide()
+                adapter.setWeather(data.weatherData)
             }
             is AppState.Loading -> {
-                binding.loadingLayout.visibility = View.VISIBLE
+                binding.loadingLayout.show()
             }
             is AppState.Error -> {
-                binding.loadingLayout.visibility = View.GONE
-                Snackbar.make(binding.mainFragmentFAB, "Error", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("Reload") {
-                        if (isDataSetRus) viewModel.getWeatherFromLocalSourceRus()
-                        else viewModel.getWeatherFromLocalSourceWorld()
-                    }
-                    .show()
+                binding.loadingLayout.hide()
+                binding.mainFragmentFAB.showSnackBar("Error", "Reload") {
+                    if (isDataSetRus) viewModel.getWeatherFromLocalSourceRus()
+                    else viewModel.getWeatherFromLocalSourceWorld()
+                }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        adapter.removeOnItemViewClickListener()
     }
 }
