@@ -7,14 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import com.example.weatherapp.BuildConfig
+import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.R
+import com.example.weatherapp.data.City
 import com.example.weatherapp.data.DTO.WeatherDTO
 import com.example.weatherapp.data.Weather
-import com.example.weatherapp.data.WeatherLoader
 import com.example.weatherapp.databinding.FragmentDetailsBinding
-import java.io.BufferedReader
-import java.util.stream.Collectors
+import com.example.weatherapp.viewmodel.AppState
+import com.example.weatherapp.viewmodel.DetailsViewModel
+import com.squareup.picasso.Picasso
+import retrofit2.Response.error
 
 class DetailsFragment : Fragment() {
 
@@ -27,9 +29,14 @@ class DetailsFragment : Fragment() {
             return fragment
         }
     }
+
     private lateinit var weatherBundle: Weather
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: DetailsViewModel by lazy {
+        ViewModelProvider(this).get(DetailsViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,30 +50,38 @@ class DetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         weatherBundle = arguments?.getParcelable<Weather>(BUNDLE_EXTRA) ?: Weather()
-        binding.main.hide()
-        binding.loadingLayout.show()
-        val loader = WeatherLoader(onLoadListener, weatherBundle.city.lat, weatherBundle.city.lon)
-        loader.loadWeather()
+        viewModel.detailsLiveData.observe(viewLifecycleOwner) { renderData(it) }
+        viewModel.getWeatherFromRemoteSource(weatherBundle.city.lat, weatherBundle.city.lon)
     }
 
-    private val onLoadListener = object: WeatherLoader.WeatherLoaderListener {
-        override fun onLoaded(weatherDTO: WeatherDTO) {
-            displayWeather(weatherDTO)
-        }
-
-        override fun onFailed(throwable: Throwable) {
-            // Обработка ошибок
+    private fun renderData(appState: AppState) {
+        when (appState) {
+            is AppState.Success -> {
+                binding.main.show()
+                binding.loadingLayout.hide()
+                setWeather(appState.weatherData[0])
+            }
+            is AppState.Loading -> {
+                binding.main.hide()
+                binding.loadingLayout.show()
+            }
+            is AppState.Error -> {
+                binding.main.show()
+                binding.loadingLayout.hide()
+                binding.main.showSnackBar(getString(R.string.error), getString(R.string.reload)) {
+                    viewModel.getWeatherFromRemoteSource(
+                        weatherBundle.city.lat,
+                        weatherBundle.city.lon
+                    )
+                }
+            }
         }
     }
 
-
-    private fun displayWeather(weatherDTO: WeatherDTO) {
+    private fun setWeather(weather: Weather) {
         with(binding) {
-            main.show()
-            loadingLayout.hide()
-            weatherBundle.city.also{ city ->
+            weatherBundle.city.let { city ->
                 cityName.text = city.city
                 cityCoordinates.text = String.format(
                     getString(R.string.city_coordinates),
@@ -74,12 +89,20 @@ class DetailsFragment : Fragment() {
                     city.lon.toString()
                 )
             }
-
-            weatherDTO.fact?.let { fact ->
-                temperatureValue.text = fact.temp.toString()
-                feelsLikeValue.text = fact.feels_like.toString()
-                weatherCondition.text = fact.condition
+            weather.let {
+                temperatureValue.text = it.temperature.toString()
+                feelsLikeValue.text = it.feelsLike.toString()
+                weatherCondition.text = it.condition
             }
+            Picasso
+                .get()
+                .load("https://freepngimg.com/thumb/city/36275-3-city-hd.png")
+                .into(headerIcon)
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

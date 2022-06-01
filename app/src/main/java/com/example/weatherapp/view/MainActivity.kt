@@ -2,11 +2,7 @@ package com.example.weatherapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
-import com.example.weatherapp.R
-import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.ActivityMainBinding
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 

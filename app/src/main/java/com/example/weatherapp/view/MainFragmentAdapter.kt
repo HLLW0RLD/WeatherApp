@@ -11,7 +11,6 @@ class MainFragmentAdapter :
     RecyclerView.Adapter<MainFragmentAdapter.MainViewHolder>() {
 
     private var weatherData: List<Weather> = listOf()
-
     private var onItemViewClickListener: (Weather) -> Unit = {}
 
     fun setOnItemViewClickListener(onItemViewClickListener: (Weather) -> Unit){

@@ -1,5 +1,6 @@
 package com.example.weatherapp.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,11 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.R
-import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.FragmentMainBinding
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.MainViewModel
-import com.google.android.material.snackbar.Snackbar
+
+private const val IS_RUSSIAN_KEY = "LIST_OF_RUSSIAN_KEY"
 
 class MainFragment : Fragment() {
 
@@ -20,19 +21,14 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-
-
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
     private var _binding: FragmentMainBinding? = null
-
     private val binding
         get() = _binding!!
-
     private val adapter = MainFragmentAdapter()
-
     private var isDataSetRus: Boolean = true
 
     override fun onCreateView(
@@ -63,7 +59,8 @@ class MainFragment : Fragment() {
             renderData(a)
         }
         viewModel.getData().observe(viewLifecycleOwner, observer)
-        viewModel.getWeatherFromLocalSourceWorld()
+        loadListOfTowns()
+        showWeatherDataSet()
     }
 
 
@@ -95,6 +92,21 @@ class MainFragment : Fragment() {
                     else viewModel.getWeatherFromLocalSourceWorld()
                 }
             }
+        }
+    }
+    private fun loadListOfTowns() {
+        requireActivity().apply {
+            isDataSetRus = getPreferences(Context.MODE_PRIVATE).getBoolean(IS_RUSSIAN_KEY, true)
+        }
+    }
+
+    private fun showWeatherDataSet() {
+        if (isDataSetRus) {
+            viewModel.getWeatherFromLocalSourceRus()
+            binding.mainFragmentFAB.setImageResource(R.drawable.ic_earth)
+        } else {
+            viewModel.getWeatherFromLocalSourceWorld()
+            binding.mainFragmentFAB.setImageResource(R.drawable.ic_russia)
         }
     }
 }
