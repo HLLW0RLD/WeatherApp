@@ -1,6 +1,6 @@
 package com.example.weatherapp.data
 
-import androidx.viewbinding.BuildConfig
+import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.data.DTO.WeatherDTO
 import com.google.gson.GsonBuilder
 import retrofit2.Callback

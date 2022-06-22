@@ -9,14 +9,11 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.R
-import com.example.weatherapp.data.City
-import com.example.weatherapp.data.DTO.WeatherDTO
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.FragmentDetailsBinding
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.DetailsViewModel
 import com.squareup.picasso.Picasso
-import retrofit2.Response.error
 
 class DetailsFragment : Fragment() {
 
@@ -45,6 +42,7 @@ class DetailsFragment : Fragment() {
     ): View {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -53,6 +51,7 @@ class DetailsFragment : Fragment() {
         weatherBundle = arguments?.getParcelable<Weather>(BUNDLE_EXTRA) ?: Weather()
         viewModel.detailsLiveData.observe(viewLifecycleOwner) { renderData(it) }
         viewModel.getWeatherFromRemoteSource(weatherBundle.city.lat, weatherBundle.city.lon)
+        viewModel.saveHistory(weatherBundle)
     }
 
     private fun renderData(appState: AppState) {
@@ -82,7 +81,7 @@ class DetailsFragment : Fragment() {
     private fun setWeather(weather: Weather) {
         with(binding) {
             weatherBundle.city.let { city ->
-                cityName.text = city.city
+                cityName.text = city.name
                 cityCoordinates.text = String.format(
                     getString(R.string.city_coordinates),
                     city.lat.toString(),

@@ -1,8 +1,7 @@
-package com.example.weatherapp.view
+package com.example.weatherapp.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.MainRecyclerItemBinding
@@ -23,11 +22,7 @@ class MainFragmentAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        val binding = MainRecyclerItemBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = MainRecyclerItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MainViewHolder(binding)
     }
 
@@ -44,7 +39,7 @@ class MainFragmentAdapter :
 
         fun bind(weather: Weather) {
             binding.apply {
-                mainFragmentRecyclerItemTextView.text = weather.city.city
+                mainFragmentRecyclerItemTextView.text = weather.city.name
                 root.setOnClickListener {
                     onItemViewClickListener(weather)
                 }

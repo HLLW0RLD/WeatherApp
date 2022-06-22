@@ -6,20 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.R
 import com.example.weatherapp.databinding.FragmentMainBinding
+import com.example.weatherapp.view.adapter.MainFragmentAdapter
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.MainViewModel
 
 private const val IS_RUSSIAN_KEY = "LIST_OF_RUSSIAN_KEY"
 
 class MainFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = MainFragment()
-    }
 
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
@@ -40,6 +36,7 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.mainFragmentRecyclerView.adapter = adapter
         adapter.setOnItemViewClickListener { weather ->
             activity?.supportFragmentManager?.apply {
                 beginTransaction()
@@ -49,20 +46,25 @@ class MainFragment : Fragment() {
                     .addToBackStack("")
                     .commitAllowingStateLoss()
             }
-    }
+        }
 
         binding.mainFragmentRecyclerView.adapter = adapter
         binding.mainFragmentFAB.setOnClickListener {
             changeWeatherDataSet()
         }
-        val observer = Observer<AppState> { a ->
-            renderData(a)
+        binding.historyFragmentFAB.setOnClickListener {
+            activity?.supportFragmentManager?.apply {
+                beginTransaction()
+                    .add(R.id.container, HistoryFragment.newInstance())
+                    .addToBackStack("")
+                    .commitAllowingStateLoss()
+            }
         }
-        viewModel.getData().observe(viewLifecycleOwner, observer)
+
+        viewModel.getData().observe(viewLifecycleOwner) { renderData(it) }
         loadListOfTowns()
         showWeatherDataSet()
     }
-
 
 
     private fun changeWeatherDataSet() {
@@ -94,6 +96,7 @@ class MainFragment : Fragment() {
             }
         }
     }
+
     private fun loadListOfTowns() {
         requireActivity().apply {
             isDataSetRus = getPreferences(Context.MODE_PRIVATE).getBoolean(IS_RUSSIAN_KEY, true)

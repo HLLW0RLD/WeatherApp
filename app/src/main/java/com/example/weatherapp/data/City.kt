@@ -4,9 +4,9 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class City(
-    val city: String,
-    val lat: Double,
-    val lon: Double
+    val name: String = "Москва",
+    val lat: Double = 0.0,
+    val lon: Double = 0.0,
 ): Parcelable
 
 fun getWorldCities() = listOf(
