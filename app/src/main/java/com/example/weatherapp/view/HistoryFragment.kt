@@ -5,13 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.R
-import com.example.weatherapp.app.App
-import com.example.weatherapp.data.repository.LocalRepositoryImpl
 import com.example.weatherapp.databinding.FragmentHistoryBinding
-import com.example.weatherapp.databinding.FragmentMainBinding
 import com.example.weatherapp.view.adapter.HistoryFragmentAdapter
+import com.example.weatherapp.viewmodel.AppState
+import com.example.weatherapp.viewmodel.HistoryViewModel
 
 class HistoryFragment : Fragment() {
 
@@ -19,37 +18,33 @@ class HistoryFragment : Fragment() {
         fun newInstance() = HistoryFragment()
     }
 
+    private val viewModel: HistoryViewModel by lazy {
+        ViewModelProvider(this).get(HistoryViewModel::class.java)
+    }
+
     private var _binding: FragmentHistoryBinding? = null
     private val binding
         get() = _binding!!
-    private var adapter =
-        HistoryFragmentAdapter(LocalRepositoryImpl(App.getHistoryDAO()).getAllHistory())
+    private var adapter = HistoryFragmentAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.historyFragmentRecyclerView.adapter = adapter
-        adapter.apply {
-            notifyDataSetChanged()
-            setOnHistoryItemViewClickListener { weather ->
-                activity?.supportFragmentManager?.apply {
-                    beginTransaction()
-                        .add(R.id.container, DetailsFragment.newInstance(Bundle().apply {
-                            putParcelable(DetailsFragment.BUNDLE_EXTRA, weather)
-                        }))
-                        .addToBackStack("")
-                        .commitAllowingStateLoss()
+        viewModel.historyLiveData.observe(viewLifecycleOwner) {
+            when (it) {
+                is AppState.Success -> {
+                    adapter.setData(it.weatherData)
                 }
             }
-
         }
+        viewModel.getDataHistory()
     }
 }

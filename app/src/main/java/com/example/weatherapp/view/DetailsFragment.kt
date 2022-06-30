@@ -29,7 +29,8 @@ class DetailsFragment : Fragment() {
 
     private lateinit var weatherBundle: Weather
     private var _binding: FragmentDetailsBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     private val viewModel: DetailsViewModel by lazy {
         ViewModelProvider(this).get(DetailsViewModel::class.java)

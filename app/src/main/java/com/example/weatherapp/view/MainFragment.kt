@@ -17,6 +17,10 @@ private const val IS_RUSSIAN_KEY = "LIST_OF_RUSSIAN_KEY"
 
 class MainFragment : Fragment() {
 
+    companion object{
+        fun newInstance() = MainFragment()
+    }
+
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
@@ -48,7 +52,6 @@ class MainFragment : Fragment() {
             }
         }
 
-        binding.mainFragmentRecyclerView.adapter = adapter
         binding.mainFragmentFAB.setOnClickListener {
             changeWeatherDataSet()
         }
@@ -82,7 +85,7 @@ class MainFragment : Fragment() {
         when (data) {
             is AppState.Success -> {
                 binding.loadingLayout.hide()
-                adapter.setWeather(data.weatherData)
+                adapter.setData(data.weatherData)
             }
             is AppState.Loading -> {
                 binding.loadingLayout.show()

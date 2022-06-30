@@ -6,12 +6,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.HistoryRecyclerItemBinding
 
-class HistoryFragmentAdapter(private var weatherHistory: List<Weather>) : RecyclerView.Adapter<HistoryFragmentAdapter.MainViewHolder>() {
+class HistoryFragmentAdapter : RecyclerView.Adapter<HistoryFragmentAdapter.MainViewHolder>() {
 
-    private var onHistoryItemViewClickListener: (Weather) -> Unit = {}
+    private var weatherHistory: List<Weather> = listOf()
 
-    fun setOnHistoryItemViewClickListener(onHistoryItemViewClickListener: (Weather) -> Unit){
-        this.onHistoryItemViewClickListener = onHistoryItemViewClickListener
+    fun setData(data : List<Weather>){
+        weatherHistory = data
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(
@@ -37,9 +38,6 @@ class HistoryFragmentAdapter(private var weatherHistory: List<Weather>) : Recycl
             binding.apply {
                 historyCityTitle.text = weather.city.name
                 historyTemperatureTitle.text = weather.temperature.toString()
-                root.setOnClickListener {
-                    onHistoryItemViewClickListener(weather)
-                }
             }
         }
     }

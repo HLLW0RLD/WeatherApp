@@ -16,7 +16,7 @@ class MainFragmentAdapter :
         this.onItemViewClickListener = onItemViewClickListener
     }
 
-    fun setWeather(data: List<Weather>) {
+    fun setData(data: List<Weather>) {
         weatherData = data
         notifyDataSetChanged()
     }

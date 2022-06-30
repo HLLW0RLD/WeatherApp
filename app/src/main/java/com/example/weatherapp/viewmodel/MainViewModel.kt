@@ -3,11 +3,12 @@ package com.example.weatherapp.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.weatherapp.data.repository.Repository
 import com.example.weatherapp.data.repository.RepositoryImpl
 import java.lang.Thread.sleep
 
-class MainViewModel(private val repository : RepositoryImpl) : ViewModel(){
-
+class MainViewModel : ViewModel(){
+    private val repository : Repository = RepositoryImpl()
     private val liveDataToObserve : MutableLiveData<AppState> = MutableLiveData()
 
     fun getData(): LiveData<AppState> = liveDataToObserve

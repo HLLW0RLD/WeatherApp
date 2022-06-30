@@ -1,10 +1,13 @@
 package com.example.weatherapp.data.room
 
 import androidx.room.Entity
-import com.example.weatherapp.data.City
+import androidx.room.PrimaryKey
+import io.reactivex.rxjava3.core.Observable
 
 @Entity
 data class HistoryEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long,
     val city: String,
     val temperature: Int,
     val condition: String,

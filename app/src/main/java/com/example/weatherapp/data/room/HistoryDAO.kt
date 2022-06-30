@@ -1,18 +1,20 @@
 package com.example.weatherapp.data.room
 
 import androidx.room.*
-import retrofit2.http.GET
+import androidx.room.OnConflictStrategy.IGNORE
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface HistoryDAO {
 
     @Query("SELECT * FROM HistoryEntity ORDER BY timestamp DESC")
-    fun all(): List<HistoryEntity>
+    fun all(): Observable<List<HistoryEntity>>
 
     @Query("SELECT * FROM HistoryEntity WHERE city LIKE :city ORDER BY timestamp DESC")
-    fun getHistoryByCity(city: String): List<HistoryEntity>
+    fun getHistoryByCity(city: String): Single<HistoryEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = IGNORE)
     fun insert(entity: HistoryEntity)
 
     @Update

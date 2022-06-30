@@ -3,61 +3,50 @@ package com.example.weatherapp.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weatherapp.app.App
-import com.example.weatherapp.data.DTO.FactDTO
-import com.example.weatherapp.data.DTO.WeatherDTO
 import com.example.weatherapp.data.RemoteDataSource
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.data.repository.*
 import com.example.weatherapp.view.convertDtoToModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.IOException
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 
-private const val SERVER_ERROR = "Ошибка сервера"
-private const val REQUEST_ERROR = "Ошибка запроса на сервер"
 private const val CORRUPTED_DATA = "Неполные данные"
 
-class DetailsViewModel(
-    val detailsLiveData: MutableLiveData<AppState> = MutableLiveData(),
-    private val localRepo: LocalRepository = LocalRepositoryImpl(App.getHistoryDAO()),
-    private val detailsRepository: DetailsRepository = DetailsRepositoryImpl(RemoteDataSource()),
-) : ViewModel() {
+class DetailsViewModel : ViewModel() {
+
+    private val localRepo: LocalRepository = LocalRepositoryImpl(App.getHistoryDAO())
+    private val detailsRepository: DetailsRepository = DetailsRepositoryImpl(RemoteDataSource())
+    val detailsLiveData: MutableLiveData<AppState> = MutableLiveData()
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     fun getWeatherFromRemoteSource(lat: Double, lon: Double) {
         detailsLiveData.value = AppState.Loading
-        detailsRepository.getWeatherDetailsFromServer(lat, lon, callBack)
+        compositeDisposable.add(
+            detailsRepository
+                .getWeatherDetailsFromServer(lat, lon)
+                .observeOn(Schedulers.io())
+                .subscribeBy(
+                    onSuccess = {
+                        detailsLiveData.postValue(
+                            AppState.Success(convertDtoToModel(it))
+                        )
+                    },
+                    onError = {
+                        AppState.Error(Throwable(CORRUPTED_DATA))
+                    }
+                )
+        )
     }
 
     fun saveHistory(weather: Weather) {
-        localRepo.saveEntity(weather)
-    }
-
-    private val callBack = object : Callback<WeatherDTO> {
-
-        @Throws(IOException::class)
-        override fun onResponse(call: Call<WeatherDTO>, response: Response<WeatherDTO>) {
-            val serverResponse: WeatherDTO? = response.body()
-            detailsLiveData.postValue(
-                if (response.isSuccessful && serverResponse != null) {
-                    checkResponse(serverResponse)
-                } else {
-                    AppState.Error(Throwable(SERVER_ERROR))
+        Single.just(weather)
+            .subscribeOn(Schedulers.io())
+            .subscribeBy(
+                onSuccess = {
+                    localRepo.saveEntity(weather)
                 }
             )
-        }
-
-        override fun onFailure(call: Call<WeatherDTO>, t: Throwable) {
-            detailsLiveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
-        }
-    }
-
-    fun checkResponse(serverResponse: WeatherDTO): AppState {
-        val fact: FactDTO? = serverResponse.fact
-        return if (fact?.temp == null || fact.feels_like == null || fact.condition.isNullOrEmpty()) {
-            AppState.Error(Throwable(CORRUPTED_DATA))
-        } else {
-            AppState.Success(convertDtoToModel(serverResponse))
-        }
     }
 }
