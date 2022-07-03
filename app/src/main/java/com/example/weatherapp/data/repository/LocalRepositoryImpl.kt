@@ -8,11 +8,9 @@ import io.reactivex.rxjava3.core.Single
 import java.util.*
 
 class LocalRepositoryImpl(private val dao: HistoryDAO) : LocalRepository {
-
     override fun getAllHistory(): Observable<List<HistoryEntity>> {
         return dao.all()
     }
-
 
     override fun saveEntity(weather: Weather) {
         dao.insert(

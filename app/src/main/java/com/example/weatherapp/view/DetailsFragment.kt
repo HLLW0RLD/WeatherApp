@@ -14,8 +14,10 @@ import com.example.weatherapp.databinding.FragmentDetailsBinding
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.DetailsViewModel
 import com.squareup.picasso.Picasso
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.KoinComponent
 
-class DetailsFragment : Fragment() {
+class DetailsFragment : Fragment(), KoinComponent {
 
     companion object {
         const val BUNDLE_EXTRA = "weather"
@@ -32,9 +34,7 @@ class DetailsFragment : Fragment() {
     private val binding
         get() = _binding!!
 
-    private val viewModel: DetailsViewModel by lazy {
-        ViewModelProvider(this).get(DetailsViewModel::class.java)
-    }
+    private val viewModel: DetailsViewModel by viewModel<DetailsViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

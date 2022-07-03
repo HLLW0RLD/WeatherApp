@@ -11,16 +11,16 @@ import com.example.weatherapp.databinding.FragmentHistoryBinding
 import com.example.weatherapp.view.adapter.HistoryFragmentAdapter
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.HistoryViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.KoinComponent
 
-class HistoryFragment : Fragment() {
+class HistoryFragment : Fragment(), KoinComponent {
 
     companion object {
         fun newInstance() = HistoryFragment()
     }
 
-    private val viewModel: HistoryViewModel by lazy {
-        ViewModelProvider(this).get(HistoryViewModel::class.java)
-    }
+    private val viewModel: HistoryViewModel by viewModel<HistoryViewModel>()
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding
