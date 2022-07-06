@@ -6,23 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.weatherapp.R
+import com.example.weatherapp.app.App
 import com.example.weatherapp.databinding.FragmentMainBinding
 import com.example.weatherapp.view.adapter.MainFragmentAdapter
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.MainViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.component.KoinComponent
+import com.example.weatherapp.viewmodel.factory.MainViewModelFactory
 
-class MainFragment : Fragment(), KoinComponent {
+class MainFragment : Fragment() {
 
-    companion object{
+    companion object {
         private const val IS_RUSSIAN_KEY = "LIST_OF_RUSSIAN_KEY"
         fun newInstance() = MainFragment()
     }
 
-    private val viewModel: MainViewModel by viewModel<MainViewModel>()
-
+    private val vmFactory: MainViewModelFactory = App.appDependenciesComponents.mainVMFactory()
+    private val viewModel: MainViewModel by viewModels { vmFactory }
     private var _binding: FragmentMainBinding? = null
     private val binding
         get() = _binding!!
@@ -112,5 +113,10 @@ class MainFragment : Fragment(), KoinComponent {
             viewModel.getWeatherFromLocalSourceWorld()
             binding.mainFragmentFAB.setImageResource(R.drawable.ic_russia)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

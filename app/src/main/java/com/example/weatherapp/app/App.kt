@@ -4,23 +4,24 @@ import android.app.Application
 import androidx.room.Room
 import com.example.weatherapp.data.room.HistoryDAO
 import com.example.weatherapp.data.room.HistoryDB
-import com.example.weatherapp.utils.di.appModuleKoin
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
+import com.example.weatherapp.utils.di.AppDependenciesComponents
+import com.example.weatherapp.utils.di.AppDependenciesModule
+import com.example.weatherapp.utils.di.DaggerAppDependenciesComponents
 
 class App : Application() {
+
     override fun onCreate() {
         super.onCreate()
         appInstance = this
-        startKoin {
-            androidLogger()
-            androidContext(this@App)
-            modules(appModuleKoin)
-        }
+        appDependenciesComponents =
+            DaggerAppDependenciesComponents
+            .builder()
+            .appDependenciesModule(AppDependenciesModule())
+            .build()
     }
 
     companion object {
+        lateinit var appDependenciesComponents: AppDependenciesComponents
         private var appInstance: App? = null
         private var db: HistoryDB? = null
         private const val DB_NAME = "History.db"

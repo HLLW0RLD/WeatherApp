@@ -22,5 +22,4 @@ interface HistoryDAO {
 
     @Delete
     fun delete(entity: HistoryEntity)
-
 }

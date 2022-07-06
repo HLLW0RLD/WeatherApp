@@ -7,17 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.example.weatherapp.R
+import com.example.weatherapp.app.App
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.databinding.FragmentDetailsBinding
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.DetailsViewModel
+import com.example.weatherapp.viewmodel.factory.DetailsViewModelFactory
 import com.squareup.picasso.Picasso
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.component.KoinComponent
 
-class DetailsFragment : Fragment(), KoinComponent {
+class DetailsFragment : Fragment() {
 
     companion object {
         const val BUNDLE_EXTRA = "weather"
@@ -29,12 +29,13 @@ class DetailsFragment : Fragment(), KoinComponent {
         }
     }
 
+    private val vmFactory: DetailsViewModelFactory =
+        App.appDependenciesComponents.detailsVMFactory()
+    private val viewModel: DetailsViewModel by viewModels { vmFactory }
     private lateinit var weatherBundle: Weather
     private var _binding: FragmentDetailsBinding? = null
     private val binding
         get() = _binding!!
-
-    private val viewModel: DetailsViewModel by viewModel<DetailsViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +53,6 @@ class DetailsFragment : Fragment(), KoinComponent {
         weatherBundle = arguments?.getParcelable<Weather>(BUNDLE_EXTRA) ?: Weather()
         viewModel.detailsLiveData.observe(viewLifecycleOwner) { renderData(it) }
         viewModel.getWeatherFromRemoteSource(weatherBundle.city.lat, weatherBundle.city.lon)
-        viewModel.saveHistory(weatherBundle)
     }
 
     private fun renderData(appState: AppState) {
@@ -61,6 +61,14 @@ class DetailsFragment : Fragment(), KoinComponent {
                 binding.main.show()
                 binding.loadingLayout.hide()
                 setWeather(appState.weatherData[0])
+                viewModel.saveHistory(
+                    Weather(
+                        weatherBundle.city,
+                        appState.weatherData[0].temperature,
+                        appState.weatherData[0].feelsLike,
+                        appState.weatherData[0].condition
+                    )
+                )
             }
             is AppState.Loading -> {
                 binding.main.hide()
@@ -102,7 +110,7 @@ class DetailsFragment : Fragment(), KoinComponent {
     }
 
     override fun onDestroyView() {
-        _binding = null
         super.onDestroyView()
+        _binding = null
     }
 }

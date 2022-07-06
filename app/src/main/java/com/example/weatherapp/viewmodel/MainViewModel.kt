@@ -4,15 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weatherapp.data.repository.Repository
-import com.example.weatherapp.data.repository.RepositoryImpl
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.lang.Thread.sleep
 
-class MainViewModel : ViewModel(), KoinComponent{
+class MainViewModel(private val repository: Repository) : ViewModel() {
 
-    private val repository : Repository by inject()
-    private val liveDataToObserve : MutableLiveData<AppState> = MutableLiveData()
+    private val liveDataToObserve: MutableLiveData<AppState> = MutableLiveData()
 
     fun getData(): LiveData<AppState> = liveDataToObserve
 

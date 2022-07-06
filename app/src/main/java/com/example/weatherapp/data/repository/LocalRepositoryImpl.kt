@@ -4,10 +4,10 @@ import com.example.weatherapp.data.Weather
 import com.example.weatherapp.data.room.HistoryDAO
 import com.example.weatherapp.data.room.HistoryEntity
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import java.util.*
+import javax.inject.Inject
 
-class LocalRepositoryImpl(private val dao: HistoryDAO) : LocalRepository {
+class LocalRepositoryImpl @Inject constructor(private val dao: HistoryDAO) : LocalRepository {
     override fun getAllHistory(): Observable<List<HistoryEntity>> {
         return dao.all()
     }

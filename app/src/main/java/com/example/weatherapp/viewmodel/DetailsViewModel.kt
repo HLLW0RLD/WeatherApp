@@ -2,7 +2,6 @@ package com.example.weatherapp.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.weatherapp.app.App
 import com.example.weatherapp.data.Weather
 import com.example.weatherapp.data.repository.*
 import com.example.weatherapp.viewmodel.AppState.*
@@ -12,17 +11,16 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class DetailsViewModel : ViewModel(), KoinComponent {
+class DetailsViewModel(
+    private val localRepo: LocalRepository,
+    private val detailsRepository: DetailsRepository
+) : ViewModel() {
 
-    companion object{
+    companion object {
         private const val CORRUPTED_DATA = "Неполные данные"
     }
 
-    private val localRepo: LocalRepository by inject()
-    private val detailsRepository: DetailsRepository by inject()
     val detailsLiveData: MutableLiveData<AppState> = MutableLiveData()
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
@@ -54,5 +52,10 @@ class DetailsViewModel : ViewModel(), KoinComponent {
                     localRepo.saveEntity(weather)
                 }
             )
+    }
+
+    override fun onCleared() {
+        compositeDisposable.clear()
+        super.onCleared()
     }
 }

@@ -5,23 +5,22 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.R
+import androidx.fragment.app.viewModels
+import com.example.weatherapp.app.App
 import com.example.weatherapp.databinding.FragmentHistoryBinding
 import com.example.weatherapp.view.adapter.HistoryFragmentAdapter
 import com.example.weatherapp.viewmodel.AppState
 import com.example.weatherapp.viewmodel.HistoryViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.component.KoinComponent
+import com.example.weatherapp.viewmodel.factory.HistoryViewModelFactory
 
-class HistoryFragment : Fragment(), KoinComponent {
+class HistoryFragment : Fragment(){
 
     companion object {
         fun newInstance() = HistoryFragment()
     }
 
-    private val viewModel: HistoryViewModel by viewModel<HistoryViewModel>()
-
+    private val vmFactory: HistoryViewModelFactory = App.appDependenciesComponents.historyVMFactory()
+    private val viewModel: HistoryViewModel by viewModels { vmFactory }
     private var _binding: FragmentHistoryBinding? = null
     private val binding
         get() = _binding!!

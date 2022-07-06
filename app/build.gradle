@@ -45,9 +45,13 @@ android {
 
 dependencies {
 
-    //Koin
-    implementation "io.insert-koin:koin-core:3.2.0"
-    implementation "io.insert-koin:koin-android:3.2.0"
+    // Dagger
+    implementation 'com.google.dagger:dagger:2.41'
+    kapt 'com.google.dagger:dagger-compiler:2.41'
+
+//    //Koin
+//    implementation "io.insert-koin:koin-core:3.2.0"
+//    implementation "io.insert-koin:koin-android:3.2.0"
 
     //Rx
     implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
@@ -71,6 +75,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation 'androidx.core:core-ktx:1.8.0'
+    implementation "androidx.fragment:fragment-ktx:1.5.0"
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
